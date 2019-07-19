@@ -1,6 +1,6 @@
 # Génère un calendrier CSV pour google, à partir des planning de 5A de CPE Lyon		
 
-Certaines parties sont un peu sales... ce script est un outil pour faire de l'administratif plus vite, pas une vitrine de développement !
+:warning: Certaines parties sont un peu sales... ce script est un outil pour faire de l'administratif plus vite, pas une vitrine de développement !
 
 ## Comment l'utiliser ?
 - Dans GCalendarCpeGenerator.py, modifier la portion suivante:
