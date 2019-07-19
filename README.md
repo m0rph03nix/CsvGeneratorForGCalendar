@@ -1,4 +1,4 @@
-# Génère un calendrier CSV pour google, à partir des planning de 5A de CPE Lyon		
+# Génère un calendrier CSV pour google, à partir des plannings de 5A de CPE Lyon		
 
 :warning: Certaines parties sont un peu sales... ce script est un outil pour faire de l'administratif plus vite, pas une vitrine de développement !
 
@@ -12,7 +12,7 @@
         # Date cell of the first day
         self.start_cell = 'B4'
 
-        # End cell of the last event
+        # End cell of the last day
         self.end_cell = 'AB21'
 
         # Legend of the events to consider
