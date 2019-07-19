@@ -9,6 +9,7 @@ from openpyxl import load_workbook
 from datetime import datetime
 from datetime import timedelta
 from copy import deepcopy
+import string
 from math import fmod
 from openpyxl.styles import NamedStyle, Font, Border, Side, PatternFill
 import unittest
@@ -16,13 +17,32 @@ import unittest
 class GCalendarCpeGenerator:
 
     def __init__(self):
-        wb = load_workbook(filename='Planning_ROS_1920_v1g.xlsx', read_only=True)
+        wb = load_workbook(filename='Planning_ROS_1920_v1h.xlsx')
         self.ws = wb.active
 
         self.start_cell = 'B4'
         self.end_cell = 'AB21'
         self.legend_range = self.ws['AI4':'AI12']
+        self.skip = ['T', 'U']
+
+        for sk in reversed(self.skip):
+            print( self.col2num(sk) )
+            #print(self.planning_range)
+            self.ws.delete_cols( self.col2num(sk) )
+
+
+        #self.planning_range = self.ws[self.start_cell:'S21', 'V4':self.end_cell]
         self.planning_range = self.ws[self.start_cell:self.end_cell]
+
+        #print(self.planning_range)
+        print('******************************************')
+
+
+
+
+
+
+
         self.start_date = deepcopy(self.ws[self.start_cell].value)
 
         self.legend = []
@@ -42,11 +62,21 @@ class GCalendarCpeGenerator:
 
 
 
+    def col2num(self, col):
+        num = 0
+        for c in col:
+            if c in string.ascii_letters:
+                num = num * 26 + (ord(c.upper()) - ord('A')) + 1
+        return num
+
+
+
     def generateCalendarSlots(self):
         CS = CalendarSlot(datetime.now())
 
         for row_i, row in enumerate(self.planning_range) :
             for cell_i, cell in enumerate(row):
+
                 dayOffset = 7*row_i + int(cell_i/5)
                 h, m = CS.TimeOfSlot( cell_i % 5)
                 current_day_date = self.start_date + timedelta(days=dayOffset, hours=h, minutes=m)
@@ -172,5 +202,5 @@ if __name__ == '__main__':
 
     GCCG.getLegend()
     GCCG.generateCalendarSlots()
-    #GCCG.printSlots()
+    GCCG.printSlots()
     GCCG.generateCsvGoogleCalendar()
