@@ -17,33 +17,27 @@ import unittest
 class GCalendarCpeGenerator:
 
     def __init__(self):
-        wb = load_workbook(filename='Planning_ROS_1920_v1h.xlsx')
+        wb = load_workbook(filename='Planning_ROS_1920_v1h.xlsx') # file to open
         self.ws = wb.active
 
+        # Date cell of the first day
         self.start_cell = 'B4'
+
+        # End cell of the last event
         self.end_cell = 'AB21'
+
+        # Legend of the events to consider
         self.legend_range = self.ws['AI4':'AI12']
+
+        # Columns to skip
         self.skip = ['T', 'U']
 
         for sk in reversed(self.skip):
-            print( self.col2num(sk) )
-            #print(self.planning_range)
             self.ws.delete_cols( self.col2num(sk) )
 
+        self.planning_range = self.ws[ self.start_cell:self.end_cell ]
 
-        #self.planning_range = self.ws[self.start_cell:'S21', 'V4':self.end_cell]
-        self.planning_range = self.ws[self.start_cell:self.end_cell]
-
-        #print(self.planning_range)
-        print('******************************************')
-
-
-
-
-
-
-
-        self.start_date = deepcopy(self.ws[self.start_cell].value)
+        self.start_date = deepcopy( self.ws[self.start_cell].value )
 
         self.legend = []
         self.day_content = []
