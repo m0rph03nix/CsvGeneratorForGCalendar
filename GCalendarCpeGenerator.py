@@ -17,20 +17,20 @@ import unittest
 class GCalendarCpeGenerator:
 
     def __init__(self):
-        wb = load_workbook(filename='Planning_ROS_1920_v1h.xlsx') # file to open
+        wb = load_workbook(filename='Planning-prévisionnel-5A-2020-2021-ROS_v2.xlsx', data_only=True) # file to open
         self.ws = wb.active
 
         # Date cell of the first day
-        self.start_cell = 'B4'
+        self.start_cell = 'A24'
 
         # End cell of the last event
-        self.end_cell = 'AB21'
+        self.end_cell = 'Y84'
 
         # Legend of the events to consider
-        self.legend_range = self.ws['AI4':'AI12']
+        self.legend_range = self.ws['AI25':'AI59']
 
         # Columns to skip
-        self.skip = ['T', 'U']
+        self.skip = [] # e.i. 'T'
 
         for sk in reversed(self.skip):
             self.ws.delete_cols( self.col2num(sk) )
@@ -50,7 +50,8 @@ class GCalendarCpeGenerator:
 
         # Get legend
         for row in self.legend_range:
-            self.legend.append(str(row[0].value).split(maxsplit=1)[0])
+            if row[0].value != None:
+                self.legend.append(str(row[0].value).split(maxsplit=1)[0])
 
         print(self.legend)
 
@@ -67,18 +68,27 @@ class GCalendarCpeGenerator:
 
     def generateCalendarSlots(self):
         CS = CalendarSlot(datetime.now())
+        current_day_date = self.start_date
+        #print('########################################  ' + str(current_day_date))
+
 
         for row_i, row in enumerate(self.planning_range) :
             for cell_i, cell in enumerate(row):
 
                 dayOffset = 7*row_i + int(cell_i/5)
                 h, m = CS.TimeOfSlot( cell_i % 5)
-                current_day_date = self.start_date + timedelta(days=dayOffset, hours=h, minutes=m)
+                #current_day_date = self.start_date + timedelta(days=dayOffset, hours=h, minutes=m)
+                if (h, m) == (0, 0): # si on est sur une cellule 'date'
+                    if cell.value != None:
+                        current_day_date = cell.value 
+    
+                current_day_with_time = current_day_date + timedelta(hours=h, minutes=m)
+
                 slotText = str(cell.value).replace('\n', ' ').strip()
                 SlotTextSplit = slotText.split()
 
                 modules_in_slot = []
-                slot_modules = slotText.split('//')
+                slot_modules = slotText.replace('_x000D_','').split('//') #_x000D_ est un caractère unicode résiduel de office365 en ligne. Eq de `\n`
                 for i,s in enumerate(slot_modules) :
                     modules_in_slot.append(s.split()[0].lower())
 
@@ -94,7 +104,7 @@ class GCalendarCpeGenerator:
 
                         slot_module = slot_module.strip()
 
-                        slot = CalendarSlot(    start_datetime=current_day_date,
+                        slot = CalendarSlot(    start_datetime=current_day_with_time,
                                                 ModuleName=slot_module.split()[0],
                                                 SlotText=slot_module
                                             )
