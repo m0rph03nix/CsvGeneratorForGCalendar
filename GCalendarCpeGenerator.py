@@ -17,7 +17,7 @@ import unittest
 class GCalendarCpeGenerator:
 
     def __init__(self):
-        wb = load_workbook(filename='Planning-prévisionnel-5A-2020-2021-ROS_v2.xlsx', data_only=True) # file to open
+        wb = load_workbook(filename='Planning-ROS-S9-20-21_v3.xlsx', data_only=True) # file to open
         self.ws = wb.active
 
         # Date cell of the first day
@@ -31,6 +31,10 @@ class GCalendarCpeGenerator:
 
         # Columns to skip
         self.skip = [] # e.i. 'T'
+
+        # Filter contributor. Leave '' for no filtering
+        self.contributor = ''
+
 
         for sk in reversed(self.skip):
             self.ws.delete_cols( self.col2num(sk) )
@@ -102,39 +106,47 @@ class GCalendarCpeGenerator:
 
                     for slot_module in slot_modules :
 
-                        slot_module = slot_module.strip()
+                        print(slot_module)
 
-                        slot = CalendarSlot(    start_datetime=current_day_with_time,
-                                                ModuleName=slot_module.split()[0],
-                                                SlotText=slot_module
-                                            )
-                        fusion1 = False
-                        fusion2 = False
+                        contrib_tmp = slot_module.replace(slot_module.split()[0] +' ', '') 
+                        if len(contrib_tmp.split()) > 1 :
+                            contrib_tmp = contrib_tmp.split()[0]
 
-                        # if slot.start_datetime.day == 27 and slot.start_datetime.month == 9 :
-                        #     print(str(slot_modules) + "  -->  " + str(slot))
+                        if (self.contributor in contrib_tmp) or  self.contributor == '' :
 
-                        try:
-                            fusion1 = CS.trySlotFusion( self.calendarSlots[-1], slot )
-                            # if slot.start_datetime.day == 27 and slot.start_datetime.month == 9:
-                            #     print(str(fusion1))
+                            slot_module = slot_module.strip()
 
-                        except IndexError:
-                            print("")
+                            slot = CalendarSlot(    start_datetime=current_day_with_time,
+                                                    ModuleName=slot_module.split()[0],
+                                                    SlotText=slot_module
+                                                )
+                            fusion1 = False
+                            fusion2 = False
 
-                        try:
-                            fusion2 = CS.trySlotFusion( self.calendarSlots[-2], slot )
-                            # if slot.start_datetime.day == 27 and slot.start_datetime.month == 9:
-                            #     print(str(fusion2))
+                            # if slot.start_datetime.day == 27 and slot.start_datetime.month == 9 :
+                            #     print(str(slot_modules) + "  -->  " + str(slot))
+
+                            try:
+                                fusion1 = CS.trySlotFusion( self.calendarSlots[-1], slot )
+                                # if slot.start_datetime.day == 27 and slot.start_datetime.month == 9:
+                                #     print(str(fusion1))
+
+                            except IndexError:
+                                print("")
+
+                            try:
+                                fusion2 = CS.trySlotFusion( self.calendarSlots[-2], slot )
+                                # if slot.start_datetime.day == 27 and slot.start_datetime.month == 9:
+                                #     print(str(fusion2))
 
 
-                        except IndexError:
-                            print("")
+                            except IndexError:
+                                print("")
 
-                        if not fusion1 and not fusion2 :
-                            self.calendarSlots.append(slot)
+                            if not fusion1 and not fusion2 :
+                                self.calendarSlots.append(slot)
 
-                        #print ("\t %s" % slot )
+                            #print ("\t %s" % slot )
 
 
 
